@@ -47,7 +47,11 @@ pipeline {
         stage('Deploy a Staging') {
             steps {
                 echo "Desplegando en STAGING (puerto ${STAGING_PORT})..."
-                sh 'docker compose up -d web-staging'
+                sh '''
+                    docker stop cicd_web_staging || true
+                    docker rm cicd_web_staging || true
+                    docker run -d --name cicd_web_staging -p 8081:80 cicd-web-demo:staging
+                '''
                 echo "Staging actualizado. Verifica en: http://localhost:8081"
             }
         }
@@ -68,7 +72,11 @@ pipeline {
         stage('Deploy a Producción') {
             steps {
                 echo "Desplegando en PRODUCCIÓN (puerto ${PROD_PORT})..."
-                sh 'docker compose up -d web-production'
+                sh '''
+                    docker stop cicd_web_production || true
+                    docker rm cicd_web_production || true
+                    docker run -d --name cicd_web_production -p 8082:80 cicd-web-demo:production
+                '''
                 echo "Producción actualizada. Verifica en: http://localhost:8082"
             }
         }
